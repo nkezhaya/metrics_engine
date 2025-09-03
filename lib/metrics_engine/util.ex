@@ -37,4 +37,31 @@ defmodule MetricsEngine.Util do
   def agg_max(:neg_infinity, value), do: value
   def agg_max(value, :neg_infinity), do: value
   def agg_max(a, b), do: max(a, b)
+
+  @doc """
+  Builds the powersets of a tag map as sorted key-value lists.
+
+  - Input is a map of tag pairs, e.g. `%{"b" => "2", "a" => "1"}`.
+  - Output is a list of subsets, where each subset is a list of
+    `{key, value}` pairs sorted in ascending key order.
+  - Includes the empty subset `[]` to support global aggregations.
+
+  Examples:
+
+      iex> MetricsEngine.Util.powersets(%{"b" => "2", "a" => "1"})
+      [
+        [],
+        [{"a", "1"}],
+        [{"b", "2"}],
+        [{"a", "1"}, {"b", "2"}]
+      ]
+  """
+  @spec powersets(%{optional(String.t()) => String.t()}) :: [[{String.t(), String.t()}]]
+  def powersets(%{} = tags) do
+    tags
+    |> Enum.sort()
+    |> Enum.reduce([[]], fn element, acc ->
+      acc ++ Enum.map(acc, fn subset -> subset ++ [element] end)
+    end)
+  end
 end

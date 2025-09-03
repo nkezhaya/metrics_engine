@@ -37,7 +37,7 @@ defmodule MetricsEngine.AggregationWorker do
   defp do_record_metric(metric, %{tab: tab, size: size}) do
     %{value: val, timestamp: timestamp, tags: tags} = metric
 
-    keys = tag_subsets(tags)
+    keys = Util.powersets(tags)
     idx = rem(timestamp, size)
 
     for tk <- keys do
@@ -109,20 +109,6 @@ defmodule MetricsEngine.AggregationWorker do
   end
 
   # Helpers
-  defp tag_subsets(%{} = tags) do
-    kv = Enum.sort(tags)
-
-    0..length(kv)
-    |> Enum.flat_map(fn k -> combinations(kv, k) end)
-  end
-
-  defp combinations(_list, 0), do: [[]]
-  defp combinations([], _k), do: []
-
-  defp combinations([h | t], k) do
-    f = for c <- combinations(t, k - 1), do: [h | c]
-    f ++ combinations(t, k)
-  end
 
   defp normalize_metric(metric) do
     metric

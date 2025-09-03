@@ -5,9 +5,12 @@ defmodule MetricsEngine.ConfigTest do
   setup do
     # Snapshot current env and restore after each test
     original = Application.get_all_env(:metrics_engine)
+
     on_exit(fn ->
       # Clear all keys first
-      for {k, _v} <- Application.get_all_env(:metrics_engine), do: Application.delete_env(:metrics_engine, k)
+      for {k, _v} <- Application.get_all_env(:metrics_engine),
+          do: Application.delete_env(:metrics_engine, k)
+
       # Restore snapshot
       for {k, v} <- original, do: Application.put_env(:metrics_engine, k, v)
     end)
@@ -29,16 +32,15 @@ defmodule MetricsEngine.ConfigTest do
   end
 
   test "validate!/0 passes with only known keys" do
-    Application.put_env(:metrics_engine, :windows, [one_minute: 60])
+    Application.put_env(:metrics_engine, :windows, one_minute: 60)
 
     assert :ok == Config.validate!()
   end
 
   test "validate!/0 raises on unknown keys" do
-    Application.put_env(:metrics_engine, :windows, [one_minute: 60])
+    Application.put_env(:metrics_engine, :windows, one_minute: 60)
     Application.put_env(:metrics_engine, :unexpected, true)
 
     assert_raise ArgumentError, fn -> Config.validate!() end
   end
 end
-
