@@ -1,5 +1,6 @@
 defmodule MetricsEngine.UtilTest do
   use ExUnit.Case, async: true
+  doctest MetricsEngine.Util
   alias MetricsEngine.Util
 
   test "agg_min handles :infinity and numbers" do
